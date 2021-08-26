@@ -15,6 +15,8 @@ from io import StringIO
 from Tools import *
 
 DataPath = ''
+DataStartDate = ''
+DataStopDate = ''
 
 #轉換日期民國到西元
 def date_convert(strDate):
@@ -84,6 +86,8 @@ def craw_stock(stock_number, start_month):
     return result
 
 def CrawStock(old_dt, stock_number, start_month):
+    global DataStartDate
+    global DataStopDate
 
     now = dtime.now().strftime("%Y-%m-%d")  # 取得現在時間
 
@@ -100,6 +104,11 @@ def CrawStock(old_dt, stock_number, start_month):
         OldStartDay = old_dt.loc[:,'日期'].min().strftime("%Y-%m-%d")
         OldStopDay = old_dt.loc[:,'日期'].max().strftime("%Y-%m-%d")
 
+    # if date(*[int(x) for x in OldStartDay.split('-')]) == DataStartDate:
+    #     return
+    # if date(*[int(x) for x in OldStopDay.split('-')]) == DataStopDate:
+    #     return
+
     print("Old start day:", OldStartDay)
     print("Old stop day: ", OldStopDay)
 
@@ -108,7 +117,7 @@ def CrawStock(old_dt, stock_number, start_month):
     #結束日
     e_month = date(*[int(x) for x in now.split('-')])
 
-    if start_month < OldStartDay:
+    if start_month < OldStartDay and DataStartDate < date(*[int(x) for x in OldStartDay.split('-')]):
         print("Get data before ",OldStartDay)
         BeginMonth = b_month
         EndMonth = date(*[int(x) for x in OldStartDay.split('-')])
@@ -134,6 +143,10 @@ def CrawStock(old_dt, stock_number, start_month):
 
     BeginMonth = GetMonthStart(date(*[int(x) for x in OldStopDay.split('-')]))
     LastDay = date(*[int(x) for x in OldStopDay.split('-')])
+
+    if date(*[int(x) for x in OldStopDay.split('-')]) == DataStopDate:
+        return
+
     for dt in rrule.rrule(rrule.MONTHLY, dtstart=BeginMonth, until=e_month):
         print(dt)
         data = craw_one_month(stock_number, dt)
@@ -148,11 +161,19 @@ if __name__ == '__main__':
     # 讀取INI檔案
     InitFile = IniTool()
     global Datapath
+    # global DataStartDate
+    # global DataStopDate
+
     DataPath = InitFile.Read('Infomation', 'DataPath')
+    DataStartDate = InitFile.Read('Infomation', 'DataStartDate')
+    DataStopDate = InitFile.Read('Infomation', 'DataStopDate')
     Date = InitFile.Read('Infomation', 'StartDate')
+
     print(Date)
     print(DataPath)
 
+    DataStartDate = date(*[int(x) for x in DataStartDate.split('-')])
+    DataStopDate = date(*[int(x) for x in DataStopDate.split('-')])
 
     #取得股票清單
     df_StockList = pd.read_csv('StockList.csv', index_col = 0)

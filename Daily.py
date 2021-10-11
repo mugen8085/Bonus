@@ -1,4 +1,5 @@
 from Tools import *
+from Stock import *
 import dearpygui.dearpygui as dpg
 from dearpygui.logger import mvLogger
 import time
@@ -16,17 +17,6 @@ class App:
         self.DataPath = None
         self.DataStartDate = None
         self.StartDate = None
-        self.WindowPositionX = None
-        self.WindowPositionY = None
-
-        self.nBeginYear = 2019
-        self.nBeginMonth = 1
-        self.nBeginDay = 1
-        self.nEndYear = 1970
-        self.nEndMonth = 1
-        self.nEndDay = 1
-
-        self.LoadInitFile()
 
         self.ExecuteTime = time.localtime()
         # TimeStr = str(self.ExecuteTime.tm_year) + "-" + str(self.ExecuteTime.tm_mon).zfill(2) + "-" + str(self.ExecuteTime.tm_mday).zfill(
@@ -38,12 +28,12 @@ class App:
             self.window_id = parent
         else:
             self.window_id = dpg.add_window(label="MyApp")
-        # print(self.window_id)
+        print(self.window_id)
         dpg.set_primary_window(self.window_id, True)
         # window_id = dpg.window(label="MyApp")
 
         if not dpg.is_viewport_created():
-            vp = dpg.create_viewport(title="MyApp", width=430, height=750, x_pos=int(self.WindowPositionX), y_pos=int(self.WindowPositionY))
+            vp = dpg.create_viewport(title="MyApp", width=430, height=750, x_pos=1930, y_pos=200)
             dpg.setup_dearpygui(viewport=vp)
             dpg.show_viewport(vp)
             dpg.set_viewport_height(950)
@@ -51,18 +41,22 @@ class App:
 
         # self.slider_float = dpg.add_slider_float(label="float", parent=self.window_id, width=100)
 
-        # self.ID_GetWinSize = dpg.add_button(parent=self.window_id, label="GetWinSize", callback=self.callback_getwinsize )
-        # dpg.add_same_line(parent=self.window_id)
-        dpg.add_text(parent=self.window_id, default_value="Time:")
+        self.ID_GetWinSize = dpg.add_button(parent=self.window_id, label="GetWinSize", callback=self.callback_getwinsize )
         dpg.add_same_line(parent=self.window_id)
-        self.ID_TimeText = dpg.add_button(parent=self.window_id, label="0", callback=self.callback_update_enddate)
+        dpg.add_text(parent=self.window_id, default_value="           Time:")
+        dpg.add_same_line(parent=self.window_id)
+        self.ID_TimeText = dpg.add_text(parent=self.window_id,default_value="0")
+
         self.ID_BtnBeginDate = 0
         self.ID_BeginDate = None
         self.ID_BeginDatePicker= None
         self.ID_BeginYear = None
         self.ID_BeginMonth = None
         self.ID_BeginDay = None
-
+        self.nBeginYear = 2019
+        self.nBeginMonth = 1
+        self.nBeginDay = 1
+        self.LoadInitFile()
 
         self.ID_BtnEndDate = 0
         self.ID_EndDate = None
@@ -70,7 +64,9 @@ class App:
         self.ID_EndYear = None
         self.ID_EndMonth = None
         self.ID_EndDay = None
-
+        self.nEndYear = 1970
+        self.nEndMonth = 1
+        self.nEndDay = 1
         self.ShowInfo()
         self.UIBeginDate()
         self.UIEndDate()
@@ -90,18 +86,13 @@ class App:
         self.nBeginYear = int(date[0])
         self.nBeginMonth = int(date[1])
         self.nBeginDay = int(date[2])
-        self.WindowPositionX = InitFile.Read('Information', 'WindowPositionX')
-        self.WindowPositionY = InitFile.Read('Information', 'WindowPositionY')
-        print('WindowPositionX:'+str(self.WindowPositionX))
-        print('WindowPositionY:'+str(self.WindowPositionY))
 
     def Update(self):
         self.count += 1
         LocalTime = time.localtime()
         TimeStr = str(LocalTime.tm_year) + "-" + str(LocalTime.tm_mon).zfill(2) + "-" + str(LocalTime.tm_mday).zfill(2) + " " + str(LocalTime.tm_hour).zfill(2) + ":" + str(LocalTime.tm_min).zfill(2) + ":" + str(LocalTime.tm_sec).zfill(2)
         # print(LocalTime)
-        # dpg.set_value(self.ID_TimeText,TimeStr)
-        dpg.set_item_label(self.ID_TimeText, TimeStr)
+        dpg.set_value(self.ID_TimeText,TimeStr)
 
     def Run(self):
         while (dpg.is_dearpygui_running()):
@@ -203,12 +194,6 @@ class App:
         #     dpg.add_date_picker(label="datepicker", level=dpg.mvDatePickerLevel_Day,
         #                         default_value={'month_day': 8, 'year': 120, 'month': 5})
 
-    def callback_update_enddate(self):
-        LocalTime = time.localtime()
-        dpg.set_value(self.ID_EndYear, str(LocalTime.tm_year))
-        dpg.set_value(self.ID_EndMonth, str(LocalTime.tm_mon))
-        dpg.set_value(self.ID_EndDay, str(LocalTime.tm_mday))
-
     def callback_inputtext(self):
         isChange = False
         # if self.nBeginYear != dpg.get_value(self.ID_BeginYear):
@@ -232,6 +217,7 @@ class App:
 
 
 if __name__ == '__main__':
+    print("go")
     app = App()
     app.Run()
     app = None

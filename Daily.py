@@ -1,8 +1,10 @@
 from Tools import *
 from Stock import *
 import dearpygui.dearpygui as dpg
-from dearpygui.logger import mvLogger
+from Logger import mvLogger
+# from dearpygui.logger import mvLogger
 import time
+from datetime import date,timedelta,datetime
 from dearpygui.demo import show_demo
 # show_demo()
 
@@ -78,7 +80,13 @@ class App:
 
         # dpg.add_same_line(parent=self.window_id)
         # self.ID_BeginDate = dpg.add_button(label="BeginDate", parent=self.window_id, callback=self.callback_begindate)
+        self.BeginDate = datetime.strptime(self.StartDate, "%Y-%m-%d")
+        self.EndDate = datetime.today()
+        self.Stock = StockTool(self.DataPath, self.BeginDate, self.EndDate)
 
+        self.ID_BtnDownloadData = dpg.add_button(parent=self.window_id, label="Download", callback=self.callback_downloaddata)
+
+        # print(self.Stock.DayList)
     def LoadInitFile(self):
         logger.log("LoadInitFile")
         # 讀取路徑
@@ -93,8 +101,9 @@ class App:
         self.nBeginDay = int(date[2])
         self.WindowPositionX = InitFile.Read('Information', 'WindowPositionX')
         self.WindowPositionY = InitFile.Read('Information', 'WindowPositionY')
-        print('WindowPositionX:'+str(self.WindowPositionX))
-        print('WindowPositionY:'+str(self.WindowPositionY))
+
+        logger.log('WindowPositionX:'+str(self.WindowPositionX))
+        logger.log('WindowPositionY:'+str(self.WindowPositionY))
 
     def Update(self):
         self.count += 1
@@ -179,9 +188,7 @@ class App:
             dpg.focus_item(self.ID_BeginDate)
         else:
             logger.log("BeginDatePicker")
-            logger.log(str(self.nBeginYear))
-            logger.log(str(self.nBeginMonth))
-            logger.log(str(self.nBeginDay))
+            logger.log(str(self.nBeginYear) + ' ' + str(self.nBeginMonth) + ' ' + str(self.nBeginDay))
             self.ID_BeginDate = dpg.add_window(label="BeginDate", pos=(60, 50))
             self.ID_BeginDatePicker = dpg.add_date_picker(parent=self.ID_BeginDate, label="datepicker", level=dpg.mvDatePickerLevel_Day,
                                 default_value={'month_day': self.nBeginDay, 'year': self.nBeginYear-1900, 'month': self.nBeginMonth}, callback=self.GetDate)
@@ -228,11 +235,15 @@ class App:
         # print(self.nBeginMonth)
         # print(self.nBeginDay)
 
+    def callback_downloaddata(self):
+        self.Stock.DownloadData(self.Stock.DayList)
+
     def __del__(self):
         print("App close.")
 
 
 if __name__ == '__main__':
+    logger.log("Program start.")
     app = App()
     app.Run()
     app = None

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # import package
 from datetime import datetime as dtime
 from datetime import date,timedelta
@@ -254,3 +255,7 @@ if __name__ == '__main__':
     # conn.commit()
     # cur.close()
     # conn.close()
+=======
+if __name__ == '__main__':
+  print('Hi')
+>>>>>>> a8f4dd5d00f6b659c3dfb63d6bb096810c9effa7

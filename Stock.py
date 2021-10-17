@@ -1,13 +1,22 @@
 import pandas as pd
 from datetime import date,timedelta
+from datetime import datetime as dtime
 from io import StringIO
+import requests
+import os
+import time
+from Logger import mvLogger
 
 class StockTool:
     #建構式
-    def __init__(self, datapath):
+    def __init__(self, datapath, begin, end):
         self.Path = datapath
         self.df_HS = pd.read_csv('holidaySchedule.csv', index_col=0)
+        self.DayList = self.GetDayList(begin, end)
 
+
+    def ReflashData(self):
+        print("ReflashData")
     def GetDataFrame(self,date):
         file = self.Path + date + '.csv'
         datas = pd.DataFrame()
@@ -34,25 +43,26 @@ class StockTool:
                 DayList.append(c_day)
         return DayList
 
-    # def DownloadData(self, daylist):
-    #     for idx, val in enumerate(daylist):
-    #         CurrentTime = dtime.now()
-    #         if val == CurrentTime.strftime("%Y%m%d") and CurrentTime.hour < 14:
-    #             break;
-    #
-    #         fullpath = DataPath + val + '.csv'
-    #         # 確認是否有舊資料
-    #         NoHistory = False
-    #         if os.path.isfile(fullpath):
-    #             # 檔案存在的處理
-    #             print("\r 檔案存在。" + str(idx), end="")
-    #         else:
-    #             # 檔案不存在的處理
-    #             print("\n檔案不存在。")
-    #             NoHistory = True
-    #         if NoHistory is True:
-    #             url = 'https://www.twse.com.tw/exchangeReport/MI_INDEX?response=csv&date=' + val + '&type=ALL'
-    #             print("\r Loading... " + str(round((idx + 1) / ListLen * 100, 2)) + "% " + val + " ", end="")
-    #             r = requests.get(url, allow_redirects=True)
-    #             open(fullpath, 'wb').write(r.content)
-    #             time.sleep(15)
+    def DownloadData(self, daylist):
+        ListLen = len(daylist)
+        for idx, val in enumerate(daylist):
+            CurrentTime = dtime.now()
+            if val == CurrentTime.strftime("%Y%m%d") and CurrentTime.hour < 14:
+                break;
+
+            fullpath = self.Path + val + '.csv'
+            # 確認是否有舊資料
+            NoHistory = False
+            if os.path.isfile(fullpath):
+                # 檔案存在的處理
+                print("\r 檔案存在。" + str(idx), end="")
+            else:
+                # 檔案不存在的處理
+                print("\n檔案不存在。")
+                NoHistory = True
+            if NoHistory is True:
+                url = 'https://www.twse.com.tw/exchangeReport/MI_INDEX?response=csv&date=' + val + '&type=ALL'
+                print("\r Loading... " + str(round((idx + 1) / ListLen * 100, 2)) + "% " + val + " ", end="")
+                r = requests.get(url, allow_redirects=True)
+                open(fullpath, 'wb').write(r.content)
+                time.sleep(15)

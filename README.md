@@ -4,3 +4,4 @@
 # Install module
 - pip install dearpygui
 - pip install pandas
+- pip install requests 
